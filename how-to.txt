@@ -1,0 +1,12 @@
+1. Please install Python
+	https://www.python.org/downloads/
+2. Install PIP
+	https://www.liquidweb.com/kb/install-pip-windows/
+3. Install requirements
+	- open command prompt (cmd in Windows I mean)
+	- locate to the folder where main.py exists (my case it's F:\Upwork\26 NCAA Scraping\ncaa and I can locate here using cd command)
+		https://stackoverflow.com/questions/5576321/need-to-navigate-to-a-folder-in-command-prompt
+	- run: "pip install -r requirement.txt"
+	- close the command prompt
+3. Double click on run.bat
+4. You will get the result excel file with timestamp in the filename in the same directory.

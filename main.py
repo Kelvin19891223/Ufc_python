@@ -17,7 +17,7 @@ import json
 espnArray =  []
 collageArray = []
 spreadArray = []
-
+jsonArray = None
 def get_espn():
     try:        
         print("Request to https://www.espn.com/mens-college-basketball/standings...")
@@ -36,7 +36,7 @@ def get_espn():
             for i in range(int(len(tr)/2)):                
                 team_name = tr[i].find("abbr")
                 point = tr[int(len(tr)/2)+i].findChildren("span", {'class', 'stat-cell'})
-                if team_name is not None:                    
+                if team_name is not None:
                     espnArray.append({
                         "conference_name" : conference_name,
                         "team_name" : team_name['title'],
@@ -105,6 +105,12 @@ class get_spread(webauto_base):
     def automate(self, day):
         try:            
             url = "https://www.sportsbookreview.com/betting-odds/ncaa-basketball/?date=" + day
+            pageString = requests.get(url).text
+            pattern = re.compile("window.__INITIAL_STATE__=(.*?)}};")
+            data = pattern.findall(pageString)
+            result = json.loads(data[0] + '}}')
+            #print(len(result['events']['events']))
+                        
             print("Automation to get spreads...")
             print(url)
 
@@ -197,13 +203,39 @@ class get_spread(webauto_base):
 
                     if bettingDate.text == "Box Scores":
                         continue
-                    
+                                        
                 except:
                     pass
+
+                #result['events']['events']
+                #                                 
                 try:
+                    time = ''
                     length = len(divs.find_elements_by_xpath("./div"))
                     if length >= 2 and bettingDate is not None:                        
+                        data_eid = None
+                        first_t = None
+                        second_t = None
+
+                        try:
+                            data_eid = divs.find_element_by_xpath("./div[1]").get_attribute('data-horizontal-eid')
                         
+                            if data_eid is not None:
+                                for tmt in result['events']['events'][data_eid]["participants"]:
+                        
+                                    if result['events']['events'][data_eid]["participants"][tmt]['ih'] == False:
+                                        first_t = result['events']['events'][data_eid]["participants"][tmt]['source']['abbr']
+                                    else:
+                                        second_t = result['events']['events'][data_eid]["participants"][tmt]['source']['abbr']                 
+                        except:
+                            pass
+                        
+                        
+                        try:
+                            time = divs.find_element_by_xpath("./div[1]//div[1]//div[2]//span").text
+                        except:
+                            pass
+                                
                         point_A_T = ""
                         point_B_T = ""                        
                         diff_A = 0
@@ -256,7 +288,9 @@ class get_spread(webauto_base):
                             pass
 
                         spreadArray.append({
+                            'time' : time,
                             'team' : teams[i].text,
+                            'abbr': first_t,
                             'opener' : getOdds(opener_f),
                             'opener_odds': getOdds(opener_s),
                             'bookmarker' : getOdds(bookmarker_f),
@@ -308,7 +342,9 @@ class get_spread(webauto_base):
                             pass
 
                         spreadArray.append({
+                            'time' : time,
                             'team' : teams[i+1].text,
+                            'abbr': second_t,
                             'opener' : getOdds(opener_f),
                             'opener_odds': getOdds(opener_s),
                             'bookmarker' : getOdds(bookmarker_f),
@@ -344,6 +380,24 @@ def get_conf(team_name):
         tmp = espnArray[0]
         pt = 0
         for espn in espnArray:
+            if espn['abbr'].lower() == team_name.lower():
+                return espn
+                break
+            #if pt < SequenceMatcher(None, espn['abbr'].lower(), team_name.lower()).ratio():
+                #pt = SequenceMatcher(None, espn['abbr'].lower(), team_name.lower()).ratio()
+                #tmp = espn
+
+        return None
+    except:
+        logging.info("Not found the get_conf of team_name")
+        return None
+
+def get_conf1(team_name):
+
+    try:
+        tmp = espnArray[0]
+        pt = 0
+        for espn in espnArray:           
             if pt < SequenceMatcher(None, espn['team_name'].lower(), team_name.lower()).ratio():
                 pt = SequenceMatcher(None, espn['team_name'].lower(), team_name.lower()).ratio()
                 tmp = espn
@@ -358,6 +412,21 @@ def get_coll(team_name):
         tmp = collageArray[0]
         pt = 0
         for collage in collageArray:
+            if collage['abbr'].lower() == team_name.lower():
+                return collage
+                break
+
+        return None
+    except:
+        logging.info("Not found the coll of team_name")
+        return None
+
+def get_coll1(team_name):
+    try:
+        tmp = collageArray[0]
+        pt = 0
+        for collage in collageArray:
+            
             if pt < SequenceMatcher(None, collage['team_name'].lower(), team_name.lower()).ratio():
                 pt = SequenceMatcher(None, collage['team_name'].lower(), team_name.lower()).ratio()
                 tmp = collage
@@ -469,36 +538,45 @@ def make_spread():
             worksheet = workbook.add_worksheet(month + '.' + date)
 
             worksheet.write(0, 0, "Date", bold)
-            worksheet.write(0, 1, "Team", bold)
-            worksheet.write(0, 2, "Conf", bold)
-            worksheet.write(0, 3, "Spread (Opener)", bold)
-            worksheet.write(0, 4, "Odds", bold)
-            worksheet.write(0, 5, "Spread (BookMaker)", bold)
-            worksheet.write(0, 6, "Odds", bold)
-            worksheet.write(0, 7, "Spread (5 Dimes)", bold)
-            worksheet.write(0, 8, "Odds", bold)
-            worksheet.write(0, 9, "Spread (Bovada)", bold)
-            worksheet.write(0, 10, "Odds", bold)
-            worksheet.write(0, 11, "Away/Home Overall Record", bold)
-            worksheet.write(0, 12, "Percentage", bold)
-            worksheet.write(0, 13, "W-L (Overall) PCT", bold)
-            worksheet.write(0, 14, "STRK", bold)
-            worksheet.write(0, 15, "BPI Rank", bold)
-            worksheet.write(0, 16, "SOS Rank", bold)
-            worksheet.write(0, 17, "SOR Rank", bold)
-            worksheet.write(0, 18, "Score", bold)
-            worksheet.write(0, 19, "P.D", bold)
-            worksheet.write(0, 20, "Away 30% below", bold)
-            worksheet.write(0, 21, "Home 70% above", bold)
-            worksheet.write(0, 22, "Sharp-Square", bold)
-            worksheet.write(0, 23, "Wager", bold)            
+            worksheet.write(0, 1, "Time", bold)
+            worksheet.write(0, 2, "Team", bold)
+            worksheet.write(0, 3, "Conf", bold)
+            worksheet.write(0, 4, "Spread (Opener)", bold)
+            worksheet.write(0, 5, "Odds", bold)
+            worksheet.write(0, 6, "Spread (BookMaker)", bold)
+            worksheet.write(0, 7, "Odds", bold)
+            worksheet.write(0, 8, "Spread (5 Dimes)", bold)
+            worksheet.write(0, 9, "Odds", bold)
+            worksheet.write(0, 10, "Spread (Bovada)", bold)
+            worksheet.write(0, 11, "Odds", bold)
+            worksheet.write(0, 12, "Away/Home Overall Record", bold)
+            worksheet.write(0, 13, "Percentage", bold)
+            worksheet.write(0, 14, "W-L (Overall) PCT", bold)
+            worksheet.write(0, 15, "STRK", bold)
+            worksheet.write(0, 16, "BPI Rank", bold)
+            worksheet.write(0, 17, "SOS Rank", bold)
+            worksheet.write(0, 18, "SOR Rank", bold)
+            worksheet.write(0, 19, "Score", bold)
+            worksheet.write(0, 20, "P.D", bold)
+            worksheet.write(0, 21, "Away 30% below", bold)
+            worksheet.write(0, 22, "Home 70% above", bold)
+            worksheet.write(0, 23, "Sharp-Square", bold)
+            worksheet.write(0, 24, "Wager", bold)            
 
             index = 1
             flag = False
             for spread in spreadArray: 
-                if spread['update_day'] == day:
-                    first_A = get_conf(spread['team'])
-                    first_B = get_coll(spread['team'])
+                if spread['update_day'] == day:                                        
+                    # first_A = get_conf(spread['team'])
+                    # first_B = get_coll(spread['team'])
+                    #if spread['abbr'] is not None:
+                    first_A = get_conf(spread['abbr'])
+                    if first_A is None:
+                        first_A = get_conf1(spread['team'])
+
+                    first_B = get_coll(spread['abbr'])                    
+                    if first_B is None:
+                        first_B = get_coll1(spread['team'])
 
                     away_home = ""
                     result = 0        
@@ -555,7 +633,7 @@ def make_spread():
                         else:
                             away_30 = 0    
 
-                    row = list({
+                    row = list({                        
                         'id': index,
                         'date': spread['date'],
                         'team': spread['team'],
@@ -584,53 +662,55 @@ def make_spread():
                         'update_time': today,
                         'o_away': first_A["o_away"],
                         'o_home': first_A["o_home"],
+                        'time': spread['time']
                     }.values())
 
                     allData.append(row)
                     worksheet.write(index, 0, row[1])
-                    worksheet.write(index, 1, row[2])
-                    worksheet.write(index, 2, row[3])
-                    worksheet.write(index, 3, row[4])
-                    worksheet.write(index, 4, row[5])
+                    worksheet.write(index, 1, row[28])
+                    worksheet.write(index, 2, row[2])
+                    worksheet.write(index, 3, row[3])
+                    worksheet.write(index, 4, row[4])
+                    worksheet.write(index, 5, row[5])
 
                     if row[6] != row[10]:
-                        worksheet.write(index, 5, row[6], magenta_format)
-                        worksheet.write(index, 9, row[10], magenta_format)
+                        worksheet.write(index, 6, row[6], magenta_format)
+                        worksheet.write(index, 10, row[10], magenta_format)
                     else:
-                        worksheet.write(index, 5, row[6])
-                        worksheet.write(index, 9, row[10])
+                        worksheet.write(index, 6, row[6])
+                        worksheet.write(index, 10, row[10])
 
-                    worksheet.write(index, 6, row[7])
-                    worksheet.write(index, 7, row[8])
-                    worksheet.write(index, 8, row[9])                
-                    worksheet.write(index, 10, row[11])
+                    worksheet.write(index, 7, row[7])
+                    worksheet.write(index, 8, row[8])
+                    worksheet.write(index, 9, row[9])                
+                    worksheet.write(index, 11, row[11])
                     
-                    worksheet.write_string(index, 11, row[12])
+                    worksheet.write_string(index, 12, row[12])
 
                     
                     if index % 3 == 1:
                         if float(row[13].replace('%','')) <= 30:
-                            worksheet.write(index, 12, row[13], tomato_format2)                        
+                            worksheet.write(index, 13, row[13], tomato_format2)                        
                         else:
-                            worksheet.write(index, 12, row[13])
+                            worksheet.write(index, 13, row[13])
                     else:
                         if float(row[13].replace('%','')) >= 70:
-                            worksheet.write(index, 12, row[13], green_format1)
+                            worksheet.write(index, 13, row[13], green_format1)
                         else:
-                            worksheet.write(index, 12, row[13])
+                            worksheet.write(index, 13, row[13])
 
                     #worksheet.write(index, 12, row[13])
-                    worksheet.write(index, 13, row[14])
-                    worksheet.write(index, 14, row[15])
-                    worksheet.write(index, 15, row[16])
-                    worksheet.write(index, 16, row[17])
-                    worksheet.write(index, 17, row[18])
-                    worksheet.write(index, 18, row[19])
-                    worksheet.write(index, 19, row[20])
-                    worksheet.write(index, 20, row[21])
-                    worksheet.write(index, 21, row[22])
-                    worksheet.write(index, 22, row[23])
-                    worksheet.write(index, 23, row[24])
+                    worksheet.write(index, 14, row[14])
+                    worksheet.write(index, 15, row[15])
+                    worksheet.write(index, 16, row[16])
+                    worksheet.write(index, 17, row[17])
+                    worksheet.write(index, 18, row[18])
+                    worksheet.write(index, 19, row[19])
+                    worksheet.write(index, 20, row[20])
+                    worksheet.write(index, 21, row[21])
+                    worksheet.write(index, 22, row[22])
+                    worksheet.write(index, 23, row[23])
+                    worksheet.write(index, 24, row[24])
 
                     index = index + 1
                     if index % 3 == 0:
@@ -640,14 +720,15 @@ def make_spread():
         print("Making weekTotal...")        
         worksheet = workbook.add_worksheet("Weekly Total")
         worksheet.write(0, 0, "Date", bold)
-        worksheet.write(0, 1, "Matchcup", bold)
-        worksheet.write(0, 2, "Result", bold)
-        worksheet.write(0, 3, "P.D", bold)
-        worksheet.write(0, 4, "Bookmaker", bold)
-        worksheet.write(0, 5, "Away Record", bold)
-        worksheet.write(0, 6, "Home Record", bold)
-        worksheet.write(0, 7, "Wager", bold)
-        worksheet.write(0, 8, "Bookmaker-P.D", bold)
+        worksheet.write(0, 1, "Time", bold)
+        worksheet.write(0, 2, "Matchcup", bold)
+        worksheet.write(0, 3, "Result", bold)
+        worksheet.write(0, 4, "P.D", bold)
+        worksheet.write(0, 5, "Bookmaker", bold)
+        worksheet.write(0, 6, "Away Record", bold)
+        worksheet.write(0, 7, "Home Record", bold)
+        worksheet.write(0, 8, "Wager", bold)
+        worksheet.write(0, 9, "Bookmaker-P.D", bold)
         
         index = 1
                              
@@ -657,24 +738,26 @@ def make_spread():
             if nrow[24] == "yes":
                 
                 worksheet.write(index, 0, row[1])   #Date
-                worksheet.write(index, 1, row[2])   #Matchcup
-                worksheet.write(index, 2, row[19])   #Result
-                worksheet.write(index, 3, row[20])   #P.D
-                worksheet.write(index, 4, row[6])   #Bookmaker
-                worksheet.write(index, 5, row[26])   #Away Record
-                worksheet.write(index, 6, row[27])   #Home Record
-                worksheet.write(index, 7, row[24])   #Wager
-                worksheet.write(index, 8, row[23])   #Bookmaker-P.D
+                worksheet.write(index, 1, row[28])   #Time
+                worksheet.write(index, 2, row[2])   #Matchcup
+                worksheet.write(index, 3, row[19])   #Result
+                worksheet.write(index, 4, row[20])   #P.D
+                worksheet.write(index, 5, row[6])   #Bookmaker
+                worksheet.write(index, 6, row[26])   #Away Record
+                worksheet.write(index, 7, row[27])   #Home Record
+                worksheet.write(index, 8, row[24])   #Wager
+                worksheet.write(index, 9, row[23])   #Bookmaker-P.D
                             
                 worksheet.write(index+1, 0, nrow[1])   #Date
-                worksheet.write(index+1, 1, nrow[2])   #Matchcup
-                worksheet.write(index+1, 2, nrow[19])   #Result
-                worksheet.write(index+1, 3, nrow[20])   #P.D
-                worksheet.write(index+1, 4, nrow[6])   #Bookmaker
-                worksheet.write(index+1, 5, nrow[26])   #Away Record
-                worksheet.write(index+1, 6, nrow[27])   #Home Record
-                worksheet.write(index+1, 7, nrow[24])   #Wager
-                worksheet.write(index+1, 8, nrow[23])   #Bookmaker-P.D
+                worksheet.write(index+1, 1, nrow[28])   #Time
+                worksheet.write(index+1, 2, nrow[2])   #Matchcup
+                worksheet.write(index+1, 3, nrow[19])   #Result
+                worksheet.write(index+1, 4, nrow[20])   #P.D
+                worksheet.write(index+1, 5, nrow[6])   #Bookmaker
+                worksheet.write(index+1, 6, nrow[26])   #Away Record
+                worksheet.write(index+1, 7, nrow[27])   #Home Record
+                worksheet.write(index+1, 8, nrow[24])   #Wager
+                worksheet.write(index+1, 9, nrow[23])   #Bookmaker-P.D
 
                 index = index + 2
                 if index % 3 == 0:
@@ -686,83 +769,28 @@ def make_spread():
         pass
 
 def main():
-    # for handler in logging.root.handlers[:]:
-    #     logging.root.removeHandler(handler)
-    # filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ncaa.log')
-    # logging.basicConfig(filename=filename,level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',)
-    # logging.info("Start...")
-    # logging.info("Espn...")
-    # get_espn()
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ncaa.log')
+    logging.basicConfig(filename=filename,level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',)
+    logging.info("Start...")
+    logging.info("Espn...")
+    get_espn()
 
-    # logging.info("colleage...")
-    # get_colleage()
+    logging.info("colleage...")
+    get_colleage()
 
-    # logging.info("spread...")
-    # weekday = findDay()
+    logging.info("spread...")
+    weekday = findDay()
 
-    # for i in range(weekday+1):                
-    #     findex = weekday -i
-    #     day = datetime.strftime(datetime.now() - timedelta(findex), '%Y%m%d')
-    #     spread = get_spread()
-    #     spread.automate(day)    
+    for i in range(weekday+1):                
+        findex = weekday -i
+        day = datetime.strftime(datetime.now() - timedelta(findex), '%Y%m%d')
+        spread = get_spread()
+        spread.automate(day)    
 
-    # logging.info("creating...")
-    # make_spread()    
+    logging.info("creating...")
+    make_spread()       
     
-    # logging.info("End...")    
-    # print(SequenceMatcher(None, "Boston University Terriers".lower(), "Bryant University".lower()).ratio())
-    # print(SequenceMatcher(None, "Bryant Bulldogs".lower(), "Bryant University".lower()).ratio())
-
-    # print(SequenceMatcher(None, "Bryant".lower(), "Bryant".lower()).ratio())
     
-    # print("Getting the Telemundo News...............................")
-    # url = 'https://www.telemundo.com/noticias'
-        
-    # branch_id = 2
-    # update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    # pageString = requests.get(url).text
-    # pattern = re.compile("\"front\":{(.*?)},\"layout\"")
-    # data = pattern.findall(pageString)
-    # result = json.loads('{' + data[0] + '}')
-    # print(result)
-    # articleData = []
-    # for item in result["curation"]["layouts"][0]["packages"][0]["items"]:
-    #     articleData.append({
-    #         "subType": item["type"],
-    #         "link": item["computedValues"]["url"],
-    #         "thumbnail": item["computedValues"]["teaseImage"]["url"]["primary"],
-    #         "title": item["computedValues"]["headline"],
-    #         "branch_id": branch_id,
-    #         "update_time": update_time
-    #     })  
-
-    # print(articleData)
-    # print("Getting the Univision News...............................")
-    # url = 'https://www.univision.com/proxy/api/cached/web-app-state?url=https://www.univision.com/noticias'
-    
-    # subType = "article"
-    # branch_id = 1
-    # update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    # pageString = requests.get(url).text
-    
-    # result = json.loads(pageString)
-    
-    # articleData = []
-    # for section in result['data']['page']['data']['widgets'][0]['contents']:
-        
-    #     articleData.append({
-    #         "title": section['title'],
-    #         "thumbnail": section['image']['renditions']['original']['href'],
-    #         "link": section['uri'],
-    #         "subType": section['type'],
-    #         "branch_id": branch_id,
-    #         "update_time": update_time
-    #     })
-
-    a = [1]
-    for i in range(len(a)):
-        print(a[i])
-        print(a[len(a)-i-1])
-
 main()

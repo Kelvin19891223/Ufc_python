@@ -561,9 +561,27 @@ def make_spread():
             worksheet.write(0, 21, "Away 30% below", bold)
             worksheet.write(0, 22, "Home 70% above", bold)
             worksheet.write(0, 23, "Sharp-Square", bold)
-            worksheet.write(0, 24, "Wager", bold)            
+            worksheet.write(0, 24, "Wager", bold)
+            worksheet.write(0, 25, "Total", bold)
+            worksheet.write(0, 26, "Home Cover", bold)
 
             index = 1
+            c_0_0 = 0
+            c_0_1 = 0
+            c_33_0 = 0
+            c_33_1 = 0
+            c_66_0 = 0
+            c_66_1 = 0
+            c_100_0 = 0
+            c_100_1 = 0
+
+            away_0_0 = 0
+            away_0_1 = 0
+            home_0_0 = 0
+            home_0_1 = 0
+            move_0_0 = 0
+            move_0_1 = 0
+
             flag = False
             for spread in spreadArray: 
                 if spread['update_day'] == day:                                        
@@ -585,10 +603,8 @@ def make_spread():
                     sharp = ""
                     wager = ""
                     p_d = ""
-
-                    if spread['diff'] > 0:
-                        p_d = spread['diff']
-
+                    props = ""
+                    cover = ""
                     if index % 3 == 1:            
                         away_home = first_A["o_away"]
                                         
@@ -603,7 +619,11 @@ def make_spread():
                             flag = True
                         else:                
                             flag = False
+
+                        props = ""
+                        cover = ""
                     else:
+                        pro = 0
                         away_home = first_A["o_home"]            
 
                         result = 0
@@ -625,6 +645,10 @@ def make_spread():
                             sharp = 0
 
                         wager = "no"
+
+                        
+                        p_d = spread['diff']
+
                         if flag == True:
                             away_30 = 1
 
@@ -632,6 +656,57 @@ def make_spread():
                                 wager = "yes"            
                         else:
                             away_30 = 0    
+
+                        if away_30 == 1:
+                            pro = pro + 1
+                        
+                        if home_70 == 1:
+                            pro = pro + 1
+
+                        if sharp > 0:
+                            pro = pro + 1
+
+                        props = str(round(pro/3*100)) + '%'
+                        
+                        try:
+                            cover = str(float(p_d) + float(spread['opener']))
+                            
+                            if float(p_d) + float(spread['opener']) > 0:
+                                if pro == 0:
+                                    c_0_0 = c_0_0 + 1
+                                elif pro == 1:
+                                    c_33_0 = c_33_0 + 1
+                                elif pro == 2:
+                                    c_66_0 = c_66_0 + 1
+                                elif pro == 3:
+                                    c_100_0 = c_100_0 + 1
+                            else:
+                                if pro == 0:
+                                    c_0_1 = c_0_1 + 1
+                                elif pro == 1:
+                                    c_33_1 = c_33_1 + 1
+                                elif pro == 2:
+                                    c_66_1 = c_66_1 + 1
+                                elif pro == 3:
+                                    c_100_1 = c_100_1 + 1
+                                
+                        except:
+                            cover = ""
+
+                        if away_30 == 1:
+                            away_0_1 = away_0_1 + 1
+                        else:
+                            away_0_0 = away_0_0 + 1
+
+                        if home_70 == 1:
+                            home_0_1 = home_0_1 + 1
+                        else:
+                            home_0_0 = home_0_0 + 1
+
+                        if sharp > 0:
+                            move_0_1 = move_0_1 + 1
+                        else:
+                            move_0_0 = move_0_0 + 1
 
                     row = list({                        
                         'id': index,
@@ -662,7 +737,9 @@ def make_spread():
                         'update_time': today,
                         'o_away': first_A["o_away"],
                         'o_home': first_A["o_home"],
-                        'time': spread['time']
+                        'time': spread['time'],
+                        'total': props,
+                        'cover': cover
                     }.values())
 
                     allData.append(row)
@@ -711,12 +788,71 @@ def make_spread():
                     worksheet.write(index, 22, row[22])
                     worksheet.write(index, 23, row[23])
                     worksheet.write(index, 24, row[24])
+                    worksheet.write(index, 25, row[29])
+                    worksheet.write(index, 26, row[30])
 
                     index = index + 1
                     if index % 3 == 0:
                         index = index + 1
 
-               
+
+            #write the chart
+            worksheet.write(0, 28, "Home Cover", bold) 
+            worksheet.write(0, 29, "Yes", bold) 
+            worksheet.write(0, 30, "No", bold) 
+            worksheet.write(0, 31, "Total", bold) 
+
+            worksheet.write(1, 28, "0%", bold) 
+            worksheet.write(1, 29, str(c_0_0), bold) 
+            worksheet.write(1, 30, str(c_0_1), bold) 
+            worksheet.write(1, 31, str(c_0_0+c_0_1), bold) 
+
+            worksheet.write(2, 28, "33%", bold) 
+            worksheet.write(2, 29, str(c_33_0), bold) 
+            worksheet.write(2, 30, str(c_33_1), bold) 
+            worksheet.write(2, 31, str(c_33_0+c_33_1), bold) 
+
+            worksheet.write(3, 28, "66%", bold) 
+            worksheet.write(3, 29, str(c_66_0), bold) 
+            worksheet.write(3, 30, str(c_66_1), bold) 
+            worksheet.write(3, 31, str(c_66_0+c_66_1), bold) 
+
+            worksheet.write(4, 28, "100%", bold) 
+            worksheet.write(4, 29, str(c_100_0), bold) 
+            worksheet.write(4, 30, str(c_100_1), bold) 
+            worksheet.write(4, 31, str(c_100_0+c_100_1), bold) 
+
+            worksheet.write(5, 28, "Total", bold) 
+            worksheet.write(5, 29, str(c_0_0+c_33_0+c_66_0+c_100_0), bold) 
+            worksheet.write(5, 30, str(c_0_1+c_33_1+c_66_1+c_100_1), bold) 
+            worksheet.write(5, 31, str(c_0_0+c_33_0+c_66_0+c_100_0+c_0_1+c_33_1+c_66_1+c_100_1), bold) 
+
+            #write below chart
+            worksheet.write(14, 28, "Home Cover", bold) 
+            worksheet.write(14, 29, "Yes", bold) 
+            worksheet.write(14, 30, "No", bold) 
+            worksheet.write(14, 31, "Total", bold) 
+
+            worksheet.write(15, 28, "0%", bold) 
+            worksheet.write(15, 29, str(away_0_1), bold) 
+            worksheet.write(15, 30, str(away_0_0), bold) 
+            worksheet.write(15, 31, str(away_0_1+away_0_0), bold) 
+
+            worksheet.write(16, 28, "33%", bold) 
+            worksheet.write(16, 29, str(home_0_1), bold) 
+            worksheet.write(16, 30, str(home_0_0), bold) 
+            worksheet.write(16, 31, str(home_0_1+home_0_0), bold) 
+
+            worksheet.write(17, 28, "66%", bold) 
+            worksheet.write(17, 29, str(move_0_1), bold) 
+            worksheet.write(17, 30, str(move_0_0), bold) 
+            worksheet.write(17, 31, str(move_0_1+move_0_0), bold) 
+
+            worksheet.write(18, 28, "Total", bold) 
+            worksheet.write(18, 29, str(away_0_1+home_0_1+move_0_1), bold) 
+            worksheet.write(18, 30, str(away_0_0+home_0_0+move_0_0), bold) 
+            worksheet.write(18, 31, str(away_0_1+home_0_1+move_0_1+away_0_0+home_0_0+move_0_0), bold) 
+
         print("Making weekTotal...")        
         worksheet = workbook.add_worksheet("Weekly Total")
         worksheet.write(0, 0, "Date", bold)

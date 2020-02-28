@@ -233,6 +233,8 @@ class get_spread(webauto_base):
                         
                         try:
                             time = divs.find_element_by_xpath("./div[1]//div[1]//div[2]//span").text
+                            date_time_obj = datetime.strptime(time.replace(' ',''), '%I:%M%p')
+                            time = date_time_obj.strftime("%H:%M")
                         except:
                             pass
                                 
@@ -531,39 +533,63 @@ def make_spread():
 
         for i in range(weekday+1):                
             findex = weekday -i
+            format_day = datetime.strftime(datetime.now() - timedelta(findex), '%m/%d/%Y')   
             day = datetime.strftime(datetime.now() - timedelta(findex), '%Y%m%d')   
             date = datetime.strftime(datetime.now() - timedelta(findex), '%d')
             month = datetime.strftime(datetime.now() - timedelta(findex), '%b')
 
             worksheet = workbook.add_worksheet(month + '.' + date)
 
+            # worksheet.write(0, 0, "Date (MM/DD/YY) ", bold)
+            # worksheet.write(0, 1, "Time", bold)
+            # worksheet.write(0, 2, "Team", bold)
+            # worksheet.write(0, 3, "Conf", bold)
+            # worksheet.write(0, 4, "Spread (Opener)", bold)
+            # worksheet.write(0, 5, "Odds", bold)
+            # worksheet.write(0, 6, "Spread (BookMaker)", bold)
+            # worksheet.write(0, 7, "Odds", bold)
+            # worksheet.write(0, 8, "Spread (5 Dimes)", bold)
+            # worksheet.write(0, 9, "Odds", bold)
+            # worksheet.write(0, 10, "Spread (Bovada)", bold)
+            # worksheet.write(0, 11, "Odds", bold)
+            # worksheet.write(0, 12, "Away/Home Overall Record", bold)
+            # worksheet.write(0, 13, "Percentage", bold)
+            # worksheet.write(0, 14, "W-L (Overall) PCT", bold)
+            # worksheet.write(0, 15, "STRK", bold)
+            # worksheet.write(0, 16, "BPI Rank", bold)
+            # worksheet.write(0, 17, "SOS Rank", bold)
+            # worksheet.write(0, 18, "SOR Rank", bold)
+            # worksheet.write(0, 19, "Score", bold)
+            # worksheet.write(0, 20, "P.D", bold)
+            # worksheet.write(0, 21, "Away 30% below", bold)
+            # worksheet.write(0, 22, "Home 70% above", bold)
+            # worksheet.write(0, 23, "Sharp-Square", bold)
+            # worksheet.write(0, 24, "Wager", bold)
+            # worksheet.write(0, 25, "Total", bold)
+            # worksheet.write(0, 26, "Home Cover", bold)
             worksheet.write(0, 0, "Date", bold)
             worksheet.write(0, 1, "Time", bold)
             worksheet.write(0, 2, "Team", bold)
             worksheet.write(0, 3, "Conf", bold)
-            worksheet.write(0, 4, "Spread (Opener)", bold)
-            worksheet.write(0, 5, "Odds", bold)
-            worksheet.write(0, 6, "Spread (BookMaker)", bold)
-            worksheet.write(0, 7, "Odds", bold)
-            worksheet.write(0, 8, "Spread (5 Dimes)", bold)
-            worksheet.write(0, 9, "Odds", bold)
-            worksheet.write(0, 10, "Spread (Bovada)", bold)
-            worksheet.write(0, 11, "Odds", bold)
-            worksheet.write(0, 12, "Away/Home Overall Record", bold)
-            worksheet.write(0, 13, "Percentage", bold)
-            worksheet.write(0, 14, "W-L (Overall) PCT", bold)
-            worksheet.write(0, 15, "STRK", bold)
-            worksheet.write(0, 16, "BPI Rank", bold)
-            worksheet.write(0, 17, "SOS Rank", bold)
-            worksheet.write(0, 18, "SOR Rank", bold)
-            worksheet.write(0, 19, "Score", bold)
-            worksheet.write(0, 20, "P.D", bold)
-            worksheet.write(0, 21, "Away 30% below", bold)
-            worksheet.write(0, 22, "Home 70% above", bold)
-            worksheet.write(0, 23, "Sharp-Square", bold)
-            worksheet.write(0, 24, "Wager", bold)
-            worksheet.write(0, 25, "Total", bold)
-            worksheet.write(0, 26, "Home Cover", bold)
+            worksheet.write(0, 4, "Opener", bold)
+            worksheet.write(0, 5, "Bookmaker", bold)
+            worksheet.write(0, 6, "5 Dimes", bold)
+            worksheet.write(0, 7, "Bovada", bold)
+            worksheet.write(0, 8, "Away/Home", bold)
+            worksheet.write(0, 9, "%", bold)
+            worksheet.write(0, 10, "Overall %", bold)
+            worksheet.write(0, 11, "STRK", bold)
+            worksheet.write(0, 12, "BPI Rank", bold)
+            worksheet.write(0, 13, "SOS Rank", bold)
+            worksheet.write(0, 14, "SOR Rank", bold)
+            worksheet.write(0, 15, "Score", bold)
+            worksheet.write(0, 16, "P.D", bold)
+            worksheet.write(0, 17, "Away", bold)
+            worksheet.write(0, 18, "Home", bold)
+            worksheet.write(0, 19, "Movement", bold)
+            worksheet.write(0, 20, "Wager", bold)
+            worksheet.write(0, 21, "Total", bold)
+            worksheet.write(0, 22, "Home Cover", bold)            
 
             index = 1
             c_0_0 = 0
@@ -581,6 +607,22 @@ def make_spread():
             home_0_1 = 0
             move_0_0 = 0
             move_0_1 = 0
+
+            c_away_0_0 = [0,0,0]
+            c_away_0_1 = [0,0,0]
+            c_away_33_0 = [0,0,0]
+            c_away_33_1 = [0,0,0]
+            c_away_66_0 = [0,0,0]
+            c_away_66_1 = [0,0,0]
+            c_away_100_0 = [0,0,0]
+            c_away_100_1 = [0,0,0]       
+
+            move_f_33_0 = 0
+            move_f_33_1 = 0
+            move_f_66_0 = 0
+            move_f_66_1 = 0
+            move_f_100_0 = 0
+            move_f_100_1 = 0
 
             flag = False
             for spread in spreadArray: 
@@ -667,19 +709,107 @@ def make_spread():
                             pro = pro + 1
 
                         props = str(round(pro/3*100)) + '%'
-                        
+                                                
                         try:
-                            cover = str(float(p_d) + float(spread['opener']))
+                            cover = str(float(p_d) + float(spread['bookmarker']))
                             
-                            if float(p_d) + float(spread['opener']) > 0:
+                            if pro == 1:    #33%
+                                if sharp <= 0:
+                                    if float(p_d) + float(spread['bookmarker']) > 0:
+                                        move_f_33_0 = move_f_33_0 + 1
+                                    else:
+                                        move_f_33_1 = move_f_33_1 + 1                                
+                            elif pro == 2:  #66
+                                if sharp <= 0:
+                                    if float(p_d) + float(spread['bookmarker']) > 0:
+                                        move_f_66_0 = move_f_66_0 + 1
+                                    else:
+                                        move_f_66_1 = move_f_66_1 + 1
+                                pass
+                            elif pro == 3:  #100
+                                if sharp <= 0:
+                                    if float(p_d) + float(spread['bookmarker']) > 0:
+                                        move_f_100_0 = move_f_100_0 + 1
+                                    else:
+                                        move_f_100_1 = move_f_100_1 + 1
+                                pass
+
+                            if float(p_d) + float(spread['bookmarker']) > 0:
                                 if pro == 0:
                                     c_0_0 = c_0_0 + 1
+                                    
+                                    #check away,home,movement
+                                    if away_30 == 1:
+                                        c_away_0_0[0] = c_away_0_0[0] + 1
+                                    else:
+                                        c_away_0_1[0] = c_away_0_1[0] + 1
+
+                                    if home_70 == 1:
+                                        c_away_0_0[1] = c_away_0_0[1] + 1
+                                    else:
+                                        c_away_0_1[1] = c_away_0_1[1] + 1
+
+                                    if sharp > 0:
+                                        c_away_0_0[2] = c_away_0_0[2] + 1
+                                    else:
+                                        c_away_0_1[2] = c_away_0_1[2] + 1
+
                                 elif pro == 1:
                                     c_33_0 = c_33_0 + 1
+
+                                    #check away,home,movement
+                                    if away_30 == 1:
+                                        c_away_33_0[0] = c_away_33_0[0] + 1
+                                    else:
+                                        c_away_33_1[0] = c_away_33_1[0] + 1
+
+                                    if home_70 == 1:
+                                        c_away_33_0[1] = c_away_33_0[1] + 1
+                                    else:
+                                        c_away_33_1[1] = c_away_33_1[1] + 1
+
+                                    if sharp > 0:
+                                        c_away_33_0[2] = c_away_33_0[2] + 1
+                                    else:
+                                        c_away_33_1[2] = c_away_33_1[2] + 1
+
                                 elif pro == 2:
                                     c_66_0 = c_66_0 + 1
+
+                                    #check away,home,movement
+                                    if away_30 == 1:
+                                        c_away_66_0[0] = c_away_66_0[0] + 1
+                                    else:
+                                        c_away_66_1[0] = c_away_66_1[0] + 1
+
+                                    if home_70 == 1:
+                                        c_away_66_0[1] = c_away_66_0[1] + 1
+                                    else:
+                                        c_away_66_1[1] = c_away_66_1[1] + 1
+
+                                    if sharp > 0:
+                                        c_away_66_0[2] = c_away_66_0[2] + 1
+                                    else:
+                                        c_away_66_1[2] = c_away_66_1[2] + 1
+
                                 elif pro == 3:
                                     c_100_0 = c_100_0 + 1
+
+                                    #check away,home,movement
+                                    if away_30 == 1:
+                                        c_away_100_0[0] = c_away_100_0[0] + 1
+                                    else:
+                                        c_away_100_1[0] = c_away_100_1[0] + 1
+
+                                    if home_70 == 1:
+                                        c_away_100_0[1] = c_away_100_0[1] + 1
+                                    else:
+                                        c_away_100_1[1] = c_away_100_1[1] + 1
+
+                                    if sharp > 0:
+                                        c_away_100_0[2] = c_away_100_0[2] + 1
+                                    else:
+                                        c_away_100_1[2] = c_away_100_1[2] + 1
                             else:
                                 if pro == 0:
                                     c_0_1 = c_0_1 + 1
@@ -710,7 +840,7 @@ def make_spread():
 
                     row = list({                        
                         'id': index,
-                        'date': spread['date'],
+                        'date': format_day,
                         'team': spread['team'],
                         'conf': first_A["conference_name"],
                         'spread': spread['opener'],
@@ -747,49 +877,48 @@ def make_spread():
                     worksheet.write(index, 1, row[28])
                     worksheet.write(index, 2, row[2])
                     worksheet.write(index, 3, row[3])
+                    #worksheet.write(index, 3, row[4])
                     worksheet.write(index, 4, row[4])
-                    worksheet.write(index, 5, row[5])
 
                     if row[6] != row[10]:
-                        worksheet.write(index, 6, row[6], magenta_format)
-                        worksheet.write(index, 10, row[10], magenta_format)
+                        worksheet.write(index, 5, row[6], magenta_format)
+                        worksheet.write(index, 7, row[10], magenta_format)
                     else:
-                        worksheet.write(index, 6, row[6])
-                        worksheet.write(index, 10, row[10])
+                        worksheet.write(index, 5, row[6])
+                        worksheet.write(index, 7, row[10])
 
-                    worksheet.write(index, 7, row[7])
-                    worksheet.write(index, 8, row[8])
-                    worksheet.write(index, 9, row[9])                
-                    worksheet.write(index, 11, row[11])
-                    
-                    worksheet.write_string(index, 12, row[12])
+                    worksheet.write(index, 6, row[8])
+                    worksheet.write(index, 8, row[12])
+                    #worksheet.write(index, 8, row[13])                
+                    worksheet.write(index, 10, row[14])                    
+                    worksheet.write_string(index, 11, row[15])
 
                     
                     if index % 3 == 1:
                         if float(row[13].replace('%','')) <= 30:
-                            worksheet.write(index, 13, row[13], tomato_format2)                        
+                            worksheet.write(index, 9, row[13], tomato_format2)                        
                         else:
-                            worksheet.write(index, 13, row[13])
+                            worksheet.write(index, 9, row[13])
                     else:
                         if float(row[13].replace('%','')) >= 70:
-                            worksheet.write(index, 13, row[13], green_format1)
+                            worksheet.write(index, 9, row[13], green_format1)
                         else:
-                            worksheet.write(index, 13, row[13])
+                            worksheet.write(index, 9, row[13])
 
                     #worksheet.write(index, 12, row[13])
-                    worksheet.write(index, 14, row[14])
-                    worksheet.write(index, 15, row[15])
-                    worksheet.write(index, 16, row[16])
-                    worksheet.write(index, 17, row[17])
-                    worksheet.write(index, 18, row[18])
-                    worksheet.write(index, 19, row[19])
-                    worksheet.write(index, 20, row[20])
-                    worksheet.write(index, 21, row[21])
-                    worksheet.write(index, 22, row[22])
-                    worksheet.write(index, 23, row[23])
-                    worksheet.write(index, 24, row[24])
-                    worksheet.write(index, 25, row[29])
-                    worksheet.write(index, 26, row[30])
+                    worksheet.write(index, 12, row[16]) 
+                    worksheet.write(index, 13, row[17])
+                    worksheet.write(index, 14, row[18])
+                    worksheet.write(index, 15, row[19])
+                    worksheet.write(index, 16, row[20])
+                    worksheet.write(index, 17, row[21])
+                    worksheet.write(index, 18, row[22])
+                    worksheet.write(index, 19, row[23])
+                    worksheet.write(index, 20, row[24])
+                    worksheet.write(index, 21, row[29])
+                    worksheet.write(index, 22, row[30])
+                    #worksheet.write(index, 25, row[29])
+                    #worksheet.write(index, 26, row[30])
 
                     index = index + 1
                     if index % 3 == 0:
@@ -797,62 +926,218 @@ def make_spread():
 
 
             #write the chart
-            worksheet.write(0, 28, "Home Cover", bold) 
-            worksheet.write(0, 29, "Yes", bold) 
-            worksheet.write(0, 30, "No", bold) 
-            worksheet.write(0, 31, "Total", bold) 
+            total_v = c_0_0+c_33_0+c_66_0+c_100_0+c_0_1+c_33_1+c_66_1+c_100_1
 
-            worksheet.write(1, 28, "0%", bold) 
-            worksheet.write(1, 29, str(c_0_0), bold) 
-            worksheet.write(1, 30, str(c_0_1), bold) 
-            worksheet.write(1, 31, str(c_0_0+c_0_1), bold) 
+            worksheet.write(0, 25, "Home Cover", bold) 
+            worksheet.write(0, 26, "Yes", bold) 
+            worksheet.write(0, 27, "No", bold) 
+            worksheet.write(0, 28, "Total", bold) 
 
-            worksheet.write(2, 28, "33%", bold) 
-            worksheet.write(2, 29, str(c_33_0), bold) 
-            worksheet.write(2, 30, str(c_33_1), bold) 
-            worksheet.write(2, 31, str(c_33_0+c_33_1), bold) 
+            worksheet.write(1, 25, "0%", bold) 
+            worksheet.write(1, 26, str(c_0_0), bold) 
+            worksheet.write(1, 27, str(c_0_1), bold) 
+            worksheet.write(1, 28, str(c_0_0+c_0_1), bold) 
 
-            worksheet.write(3, 28, "66%", bold) 
-            worksheet.write(3, 29, str(c_66_0), bold) 
-            worksheet.write(3, 30, str(c_66_1), bold) 
-            worksheet.write(3, 31, str(c_66_0+c_66_1), bold) 
+            try:
+                worksheet.write(2, 26, str(int(c_0_0/total_v*100)) + '%') 
+                worksheet.write(2, 27, str(int(c_0_1/total_v*100)) + '%') 
+            except:
+                worksheet.write(2, 26, '0%') 
+                worksheet.write(2, 27, '0%') 
+            try:
+                worksheet.write(2, 28, str(int((c_0_0+c_0_1)/total_v*100)) + '%') 
+            except:
+                worksheet.write(2, 28, '0%') 
 
-            worksheet.write(4, 28, "100%", bold) 
-            worksheet.write(4, 29, str(c_100_0), bold) 
-            worksheet.write(4, 30, str(c_100_1), bold) 
-            worksheet.write(4, 31, str(c_100_0+c_100_1), bold) 
+            worksheet.write(3, 25, "33%", bold) 
+            worksheet.write(3, 26, str(c_33_0), bold) 
+            worksheet.write(3, 27, str(c_33_1), bold) 
+            worksheet.write(3, 28, str(c_33_0+c_33_1), bold) 
+            
+            try:
+                worksheet.write(4, 26, str(int(c_33_0/total_v*100)) + '%') 
+                worksheet.write(4, 27, str(int(c_33_1/total_v*100)) + '%') 
+            except:
+                worksheet.write(4, 26, '0%')
+                worksheet.write(4, 27, '0%')
 
-            worksheet.write(5, 28, "Total", bold) 
-            worksheet.write(5, 29, str(c_0_0+c_33_0+c_66_0+c_100_0), bold) 
-            worksheet.write(5, 30, str(c_0_1+c_33_1+c_66_1+c_100_1), bold) 
-            worksheet.write(5, 31, str(c_0_0+c_33_0+c_66_0+c_100_0+c_0_1+c_33_1+c_66_1+c_100_1), bold) 
+            try:
+                worksheet.write(4, 28, str(int((c_33_0+c_33_1)/total_v*100)) + '%') 
+            except:
+                worksheet.write(4, 28, '0%')
+
+            worksheet.write(5, 25, "Away") 
+            worksheet.write(5, 26, str(c_away_33_0[0]), bold) 
+            worksheet.write(5, 27, str(c_away_33_1[0]), bold) 
+            worksheet.write(5, 28, str(c_away_33_0[0] + c_away_33_1[0]), bold) 
+
+            try:
+                worksheet.write(6, 26, str(int(c_away_33_0[0]/total_v*100)) + '%') 
+                worksheet.write(6, 27, str(int(c_away_33_1[0]/total_v*100)) + '%') 
+            except:
+                worksheet.write(6, 26, '0%')
+                worksheet.write(6, 27, '0%')
+
+            try:
+                worksheet.write(6, 28, str(int((c_away_33_0[0] + c_away_33_1[0])/total_v*100)) + '%')
+            except:
+                worksheet.write(6, 28, '0%')
+
+            worksheet.write(7, 25, "Home") 
+            worksheet.write(7, 26, str(c_away_33_0[1]), bold) 
+            worksheet.write(7, 27, str(c_away_33_1[1]), bold) 
+            worksheet.write(7, 28, str(c_away_33_0[1] + c_away_33_1[1]), bold) 
+
+            try:
+                worksheet.write(8, 26, str(int(c_away_33_0[1]/total_v*100)) + '%') 
+                worksheet.write(8, 27, str(int(c_away_33_1[1]/total_v*100)) + '%') 
+            except:
+                worksheet.write(8, 26, '0%')
+                worksheet.write(8, 27, '0%')
+
+            try:
+                worksheet.write(8, 28, str(int((c_away_33_0[1] + c_away_33_1[1])/total_v*100)) + '%')
+            except:
+                worksheet.write(8, 28, '0%')
+
+            worksheet.write(9, 25, "Movement") 
+            worksheet.write(9, 26, str(c_away_33_0[2]), bold) 
+            worksheet.write(9, 27, str(c_away_33_1[2]), bold) 
+            worksheet.write(9, 28, str(c_away_33_0[2] + c_away_33_1[2]), bold) 
+
+            try:
+                worksheet.write(10, 26, str(int(c_away_33_0[2]/total_v*100)) + '%') 
+                worksheet.write(10, 27, str(int(c_away_33_1[2]/total_v*100)) + '%') 
+            except:
+                worksheet.write(10, 26, '0%')
+                worksheet.write(10, 27, '0%')
+            
+            try:
+                worksheet.write(10, 28, str(int((c_away_33_0[2] + c_away_33_1[2])/total_v*100)) + '%')
+            except:
+                worksheet.write(10, 28, '0%')
+
+            worksheet.write(11, 25, "66%", bold) 
+            worksheet.write(11, 26, str(c_66_0), bold) 
+            worksheet.write(11, 27, str(c_66_1), bold) 
+            worksheet.write(11, 28, str(c_66_0+c_66_1), bold) 
+
+            try:
+                worksheet.write(12, 26, str(int(c_66_0/total_v*100)) + '%') 
+                worksheet.write(12, 27, str(int(c_66_1/total_v*100)) + '%') 
+            except:
+                worksheet.write(12, 26, '0%')
+                worksheet.write(12, 27, '0%')
+
+            try:
+                worksheet.write(12, 28, str(int((c_66_0+c_66_1)/total_v*100)) + '%') 
+            except:
+                worksheet.write(12, 28, '0%')
+
+            worksheet.write(13, 25, "Away") 
+            worksheet.write(13, 26, str(c_away_66_0[0]), bold) 
+            worksheet.write(13, 27, str(c_away_66_1[0]), bold) 
+            worksheet.write(13, 28, str(c_away_66_0[0] + c_away_66_1[0]), bold) 
+
+            try:
+                worksheet.write(14, 26, str(int(c_away_66_0[0]/total_v*100)) + '%') 
+                worksheet.write(14, 27, str(int(c_away_66_1[0]/total_v*100)) + '%') 
+            except:
+                worksheet.write(14, 26, '0%')
+                worksheet.write(14, 27, '0%')
+            
+            try:
+                worksheet.write(14, 28, str(int((c_away_66_0[0] + c_away_66_1[0])/total_v*100)) + '%')
+            except:
+                worksheet.write(14, 28, '0%')
+
+            worksheet.write(15, 25, "Home") 
+            worksheet.write(15, 26, str(c_away_66_0[1]), bold) 
+            worksheet.write(15, 27, str(c_away_66_1[1]), bold) 
+            worksheet.write(15, 28, str(c_away_66_0[1] + c_away_66_1[1]), bold) 
+
+            try:
+                worksheet.write(16, 26, str(int(c_away_66_0[1]/total_v*100)) + '%') 
+                worksheet.write(16, 27, str(int(c_away_66_1[1]/total_v*100)) + '%') 
+            except:
+                worksheet.write(16, 26, '0%')
+                worksheet.write(16, 27, '0%')
+
+            try:
+                worksheet.write(16, 28, str(int((c_away_66_0[1] + c_away_66_1[1])/total_v*100)) + '%')
+            except:
+                worksheet.write(16, 28, '0%')
+
+            worksheet.write(17, 25, "Movement") 
+            worksheet.write(17, 26, str(c_away_66_0[2]), bold) 
+            worksheet.write(17, 27, str(c_away_66_1[2]), bold) 
+            worksheet.write(17, 28, str(c_away_66_0[2] + c_away_66_1[2]), bold) 
+
+            try:
+                worksheet.write(18, 26, str(int(c_away_66_0[2]/total_v*100)) + '%') 
+                worksheet.write(18, 27, str(int(c_away_66_1[2]/total_v*100)) + '%') 
+            except:
+                worksheet.write(18, 26, '0%')
+                worksheet.write(18, 27, '0%')
+
+            try:
+                worksheet.write(18, 28, str(int((c_away_66_0[2] + c_away_66_1[2])/total_v*100)) + '%')
+            except:
+                worksheet.write(18, 28, '0%')            
+
+            worksheet.write(19, 25, "100%", bold) 
+            worksheet.write(19, 26, str(c_100_0), bold) 
+            worksheet.write(19, 27, str(c_100_1), bold) 
+            worksheet.write(19, 28, str(c_100_0+c_100_1), bold) 
+
+            try:
+                worksheet.write(20, 26, str(int(c_100_0/(c_100_0+c_100_1)*100)) + '%') 
+                worksheet.write(20, 27, str(int(c_100_1/(c_100_0+c_100_1)*100)) + '%') 
+            except:
+                worksheet.write(20, 26, '0%')
+                worksheet.write(20, 27, '0%')
+
+            try:
+                worksheet.write(20, 28, str(int((c_100_0+c_100_1)/total_v*100)) + '%') 
+            except:
+                worksheet.write(20, 28, '0%')
+
+            worksheet.write(21, 25, "Total", bold) 
+            worksheet.write(21, 26, str(c_0_0+c_33_0+c_66_0+c_100_0), bold) 
+            worksheet.write(21, 27, str(c_0_1+c_33_1+c_66_1+c_100_1), bold) 
+            worksheet.write(21, 28, str(c_0_0+c_33_0+c_66_0+c_100_0+c_0_1+c_33_1+c_66_1+c_100_1), bold) 
+
+            try:
+                worksheet.write(22, 26, str(int((c_0_0+c_33_0+c_66_0+c_100_0)/total_v*100)) + '%') 
+                worksheet.write(22, 27, str(int((c_0_1+c_33_1+c_66_1+c_100_1)/total_v*100)) + '%')             
+            except:
+                worksheet.write(22, 26, '0%')
+                worksheet.write(22, 27, '0%')
 
             #write below chart
-            worksheet.write(14, 28, "Home Cover", bold) 
-            worksheet.write(14, 29, "Yes", bold) 
-            worksheet.write(14, 30, "No", bold) 
-            worksheet.write(14, 31, "Total", bold) 
+            worksheet.write(25, 26, "Home Cover", bold) 
 
-            worksheet.write(15, 28, "0%", bold) 
-            worksheet.write(15, 29, str(away_0_1), bold) 
-            worksheet.write(15, 30, str(away_0_0), bold) 
-            worksheet.write(15, 31, str(away_0_1+away_0_0), bold) 
+            worksheet.write(26, 25, "False Positive", bold) 
+            worksheet.write(26, 26, "Yes", bold) 
+            worksheet.write(26, 27, "No", bold) 
 
-            worksheet.write(16, 28, "33%", bold) 
-            worksheet.write(16, 29, str(home_0_1), bold) 
-            worksheet.write(16, 30, str(home_0_0), bold) 
-            worksheet.write(16, 31, str(home_0_1+home_0_0), bold) 
+            
+            worksheet.write(27, 25, "33%", bold) 
+            worksheet.write(27, 26, str(move_f_33_0), bold) 
+            worksheet.write(27, 27, str(move_f_33_1), bold) 
+           
+            worksheet.write(28, 25, "66%", bold) 
+            worksheet.write(28, 26, str(move_f_66_0), bold) 
+            worksheet.write(28, 27, str(move_f_66_1), bold) 
 
-            worksheet.write(17, 28, "66%", bold) 
-            worksheet.write(17, 29, str(move_0_1), bold) 
-            worksheet.write(17, 30, str(move_0_0), bold) 
-            worksheet.write(17, 31, str(move_0_1+move_0_0), bold) 
+            worksheet.write(29, 25, "100%", bold) 
+            worksheet.write(29, 26, str(move_f_100_0), bold) 
+            worksheet.write(29, 27, str(move_f_100_1), bold) 
 
-            worksheet.write(18, 28, "Total", bold) 
-            worksheet.write(18, 29, str(away_0_1+home_0_1+move_0_1), bold) 
-            worksheet.write(18, 30, str(away_0_0+home_0_0+move_0_0), bold) 
-            worksheet.write(18, 31, str(away_0_1+home_0_1+move_0_1+away_0_0+home_0_0+move_0_0), bold) 
-
+            worksheet.write(30, 25, "Total", bold) 
+            worksheet.write(30, 26, str(move_f_33_0 + move_f_66_0 + move_f_100_0), bold) 
+            worksheet.write(30, 27, str(move_f_33_1 + move_f_66_1 + move_f_100_1), bold) 
+                  
         print("Making weekTotal...")        
         worksheet = workbook.add_worksheet("Weekly Total")
         worksheet.write(0, 0, "Date", bold)
@@ -861,17 +1146,30 @@ def make_spread():
         worksheet.write(0, 3, "Result", bold)
         worksheet.write(0, 4, "P.D", bold)
         worksheet.write(0, 5, "Bookmaker", bold)
-        worksheet.write(0, 6, "Away Record", bold)
-        worksheet.write(0, 7, "Home Record", bold)
-        worksheet.write(0, 8, "Wager", bold)
-        worksheet.write(0, 9, "Bookmaker-P.D", bold)
-        
+        worksheet.write(0, 6, "Wager", bold)
+        #worksheet.write(0, 6, "Away", bold)
+        #worksheet.write(0, 7, "Home", bold)
+        #worksheet.write(0, 8, "Wager", bold)
+        #worksheet.write(0, 9, "Bookmaker-P.D", bold)
+        worksheet.write(0, 7, "Away", bold)
+        worksheet.write(0, 8, "Home", bold)
+        worksheet.write(0, 9, "Movement", bold)
+        worksheet.write(0, 10, "Total", bold)
+        worksheet.write(0, 11, "Home Cover", bold)
+        worksheet.write(0, 12, "Result", bold)
+
         index = 1
-                             
+        below_0 = [0,0,0]
+        below_1 = [0,0,0]
+        above_0 = [0,0,0]
+        above_1 = [0,0,0]
+        array = [-15,-14.5,-14,-13.5,-13,-12.5,-12,-11.5,-11,-10.5,-10,-9.5,-9,-8.5,-8,-7.5,-7,-6.5,-6,-5.5,-5,-4.5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15]
+        array_c_0 = [0] * 61
+        array_c_1 = [0] * 61
         for tindex in range(int(len(allData)/2)):
             row = allData[tindex*2]
             nrow = allData[tindex*2 + 1]
-            if nrow[24] == "yes":
+            if nrow[29] == "67%" or nrow[29] == "100%":
                 
                 worksheet.write(index, 0, row[1])   #Date
                 worksheet.write(index, 1, row[28])   #Time
@@ -879,25 +1177,173 @@ def make_spread():
                 worksheet.write(index, 3, row[19])   #Result
                 worksheet.write(index, 4, row[20])   #P.D
                 worksheet.write(index, 5, row[6])   #Bookmaker
-                worksheet.write(index, 6, row[26])   #Away Record
-                worksheet.write(index, 7, row[27])   #Home Record
-                worksheet.write(index, 8, row[24])   #Wager
-                worksheet.write(index, 9, row[23])   #Bookmaker-P.D
-                            
+                worksheet.write(index, 6, row[24])   #Away Record
+                #worksheet.write(index, 7, row[27])   #Home Record
+                #worksheet.write(index, 6, row[24])   #Wager
+                #worksheet.write(index, 9, row[23])   #Bookmaker-P.D
+                worksheet.write(index, 7, row[21])
+                worksheet.write(index, 8, row[22])
+                worksheet.write(index, 9, row[23])                
+                worksheet.write(index, 10, row[29])
+                worksheet.write(index, 11, row[30])
+                
+                #worksheet.write(index, 12, row[30])
+
                 worksheet.write(index+1, 0, nrow[1])   #Date
                 worksheet.write(index+1, 1, nrow[28])   #Time
                 worksheet.write(index+1, 2, nrow[2])   #Matchcup
                 worksheet.write(index+1, 3, nrow[19])   #Result
                 worksheet.write(index+1, 4, nrow[20])   #P.D
                 worksheet.write(index+1, 5, nrow[6])   #Bookmaker
-                worksheet.write(index+1, 6, nrow[26])   #Away Record
-                worksheet.write(index+1, 7, nrow[27])   #Home Record
-                worksheet.write(index+1, 8, nrow[24])   #Wager
-                worksheet.write(index+1, 9, nrow[23])   #Bookmaker-P.D
+                #worksheet.write(index+1, 6, nrow[26])   #Away Record
+                #worksheet.write(index+1, 7, nrow[27])   #Home Record
+                worksheet.write(index+1, 6, nrow[24])   #Wager
+                #worksheet.write(index+1, 9, nrow[23])   #Bookmaker-P.D
+
+                worksheet.write(index+1, 7, nrow[21])
+                worksheet.write(index+1, 8, nrow[22])
+                worksheet.write(index+1, 9, nrow[23])                
+                worksheet.write(index+1, 10, nrow[29])
+                worksheet.write(index+1, 11, nrow[30])
+
+                bookmaker = float(nrow[6])
+                if float(nrow[30]) > 0:
+                    worksheet.write(index+1, 12, 1)
+
+                    if bookmaker > 15:
+                        if bookmaker >= 15.5 and bookmaker <= 20:
+                            above_0[0] = above_0[0] + 1
+                        elif bookmaker >= 20.5 and bookmaker <= 25:
+                            above_0[1] = above_0[1] + 1
+                        elif bookmaker >= 25.5 and bookmaker <= 30:
+                            above_0[2] = above_0[2] + 1
+
+                    elif bookmaker<-15:
+                        if bookmaker >= -30 and bookmaker <= -25.5:
+                            below_0[0] = below_0[0] + 1
+                        elif bookmaker >= -25 and bookmaker <= -20.5:
+                            below_0[1] = below_0[1] + 1
+                        elif bookmaker >= -20 and bookmaker <= -15.5:
+                            below_0[2] = below_0[2] + 1
+
+
+                    else:
+                        for i in range(len(array)):
+                            if float(array[i]) == bookmaker:
+                                array_c_0[i] = array_c_0[i] + 1
+                                break
+                else:
+                    worksheet.write(index+1, 12, 0)
+
+                    if bookmaker > 15:
+                        if bookmaker >= 15.5 and bookmaker <= 20:
+                            above_1[0] = above_1[0] + 1
+                        elif bookmaker >= 20.5 and bookmaker <= 25:
+                            above_1[1] = above_1[1] + 1
+                        elif bookmaker >= 25.5 and bookmaker <= 30:
+                            above_1[2] = above_1[2] + 1
+
+                    elif bookmaker<-15:
+                        if bookmaker >= -30 and bookmaker <= -25.5:
+                            below_1[0] = below_1[0] + 1
+                        elif bookmaker >= -25 and bookmaker <= -20.5:
+                            below_1[1] = below_1[1] + 1
+                        elif bookmaker >= -20 and bookmaker <= -15.5:
+                            below_1[2] = below_1[2] + 1
+                    else:
+                        for i in range(len(array)):
+                            if float(array[i]) == bookmaker:
+                                array_c_1[i] = array_c_1[i] + 1
+                                break
 
                 index = index + 2
                 if index % 3 == 0:
                     index = index + 1
+
+        worksheet.write(0, 14, "Points", bold)
+        worksheet.write(0, 15, "Y", bold)
+        worksheet.write(0, 16, "N", bold)
+        worksheet.write(0, 17, "Total", bold)
+
+        worksheet.write(1, 14, "-25.5-30")
+
+        if below_0[0] != 0:
+            worksheet.write(1, 15, str(below_0[0]))
+
+        if below_1[0] != 0:
+            worksheet.write(1, 16, str(below_1[0]))
+
+        if below_0[0] + below_1[0] != 0:
+            worksheet.write(1, 17, str(below_0[0]+below_1[0]))
+
+
+        worksheet.write(2, 14, "-20.5-25")
+
+        if below_0[1] != 0:
+            worksheet.write(2, 15, str(below_0[1]))
+
+        if below_1[1] != 0:
+            worksheet.write(2, 16, str(below_1[1]))
+
+        if below_0[1] + below_1[1] != 0:
+            worksheet.write(2, 17, str(below_0[1]+below_1[1]))
+
+
+        worksheet.write(3, 14, "-15.5-20")
+
+        if below_0[2] != 0:
+            worksheet.write(3, 15, str(below_0[2]))
+
+        if below_1[2] != 0:
+            worksheet.write(3, 16, str(below_1[2]))
+
+        if below_0[2] + below_1[2] != 0:
+            worksheet.write(3, 17, str(below_0[2]+below_1[2]))
+
+        for i in range(len(array)):
+            worksheet.write(i+4, 14, str(array[i]))
+            if array_c_0[i] != 0:
+                worksheet.write(i+4, 15, str(array_c_0[i]))
+
+            if array_c_1[i] != 0:
+                worksheet.write(i+4, 16, str(array_c_1[i]))
+
+            if array_c_0[i]+array_c_1[i] != 0:
+                worksheet.write(i+4, 17, str(array_c_0[i]+array_c_1[i]))
+
+        
+        worksheet.write(len(array)+4, 14, "15.5-20")
+
+        if above_0[0] != 0:
+            worksheet.write(len(array)+4, 15, str(above_0[0]))
+
+        if above_1 != 0:
+            worksheet.write(len(array)+4, 16, str(above_1[0]))
+
+        if above_0[0]+above_1[0] != 0:
+            worksheet.write(len(array)+4, 17, str(above_0[0]+above_1[0]))
+
+        worksheet.write(len(array)+5, 14, "20.5-25")
+
+        if above_0[1] != 0:
+            worksheet.write(len(array)+5, 15, str(above_0[1]))
+
+        if above_1[1] != 0:
+            worksheet.write(len(array)+5, 16, str(above_1[1]))
+
+        if above_0[1]+above_1[1] != 0:
+            worksheet.write(len(array)+5, 17, str(above_0[1]+above_1[1]))
+
+        worksheet.write(len(array)+6, 14, "25.5-30")
+
+        if above_0[2] != 0:
+            worksheet.write(len(array)+6, 15, str(above_0[2]))
+
+        if above_1[2] != 0:
+            worksheet.write(len(array)+6, 16, str(above_1[2]))
+
+        if above_0[2]+above_1[2] != 0:
+            worksheet.write(len(array)+6, 17, str(above_0[2]+above_1[2]))
 
         workbook.close()
     except Exception as e:
